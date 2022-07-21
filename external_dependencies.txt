@@ -1,5 +1,5 @@
-GTest        | 1.10    | gtest-1.11               | lib64/cmake |       |
-fmt          | 8.1.1   | fmt-8.1.1                | lib64/cmake | lib64 |
-GUnit        | 1.11.0+ | gunit-1.11x              | lib64/cmake |       |
-json         | 3.10.5  | json-3.10.5              | lib64/cmake |       |
-spdlog       | 1.10.0  | spdlog-1.10.0            | lib64/cmake |       |
+GTest        | gtest-1.11               | lib64/cmake |
+fmt          | fmt-8.1.1                | lib64/cmake | lib64
+GUnit        | gunit-1.11x              | lib64/cmake |
+json         | json-3.10.5              | lib64/cmake |
+spdlog       | spdlog-1.10.0            | lib64/cmake |

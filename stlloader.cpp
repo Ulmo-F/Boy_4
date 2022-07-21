@@ -18,7 +18,7 @@ void Facet::print(std::ostream& os) const
 {
 //    auto & n = normal;
     os << "n " << normal.x << " " << normal.y << " " << normal.z << "\n";
-    for(int i = 0; i < 3; ++i) {
+    for (int i = 0; i < 3; ++i) {
         //auto & v = vertices[i];
         os << " v" << vertices[i].x << " " << vertices[i].y << " " << vertices[i].z << "\n";
     }
@@ -29,7 +29,7 @@ void Mesh::print(std::ostream& os) const
     os << "name: " << name << '\n';
     os << "header: " << header << '\n';
     os << "num facets: " << facets.size() << '\n';
-    for(auto & facet : facets) {
+    for (auto & facet : facets) {
         facet.print(os);
     }
 }
@@ -75,19 +75,19 @@ void parse_ascii_facet(std::istream & is, Facet & facet)
     std::string label, sub;
     auto ss = getlinestream(is);
     ss >> label >> sub;
-    if(label == "outer" && sub == "loop") {
+    if (label == "outer" && sub == "loop") {
         int vi = 0;
         do {
             auto line = getlinestream(is);
             line >> label;
-            if(label == "vertex") {
-                if(vi < 3) {
+            if (label == "vertex") {
+                if (vi < 3) {
                     line >> facet.vertices[vi];
                 }
                 ++vi;
             }
-        } while(label != "endloop");
-        if(vi > 3)
+        } while (label != "endloop");
+        if (vi > 3)
             throw; // only support triangles
     }
     else { throw; }
@@ -98,16 +98,16 @@ void parse_ascii_solid(std::istream & is, Mesh & mesh)
 {
     std::string line, kind, param;
 
-    while(std::getline(is, line)) {
+    while (std::getline(is, line)) {
         std::istringstream ss(line);
         ss >> kind;
-        if(kind == "endsolid") {
+        if (kind == "endsolid") {
             break;
         }
-        else if(kind == "facet") {
+        else if (kind == "facet") {
             Facet facet = {};
             ss >> param;
-            if(param != "normal")
+            if (param != "normal")
                 throw;
             ss >> facet.normal;
             parse_ascii_facet(is, facet);
@@ -120,10 +120,10 @@ void parse_ascii_solid(std::istream & is, Mesh & mesh)
 void parse_ascii_stream(std::istream & is, Mesh & mesh)
 {
     std::string line, kind;
-    while(std::getline(is, line)) {
+    while (std::getline(is, line)) {
         std::istringstream ss(line);
         ss >> kind;
-        if(kind == "solid") {
+        if (kind == "solid") {
             ss.ignore(line.length(), ' ');
             std::getline(ss, mesh.name);
             parse_ascii_solid(is, mesh);
@@ -135,7 +135,7 @@ void parse_ascii_stream(std::istream & is, Mesh & mesh)
 template<typename T>
 T little_endian_to_native(T v) {
     T vn = 0;
-    for(unsigned int i = 0; i < sizeof(T); ++i) {
+    for (unsigned int i = 0; i < sizeof(T); ++i) {
         vn += (T)((uint8_t*)&v)[i] << (8 * i);
     }
     return vn;
@@ -205,10 +205,10 @@ void parse_binary_stream(std::istream & is, Mesh & mesh)
 
     auto num_triangles = read_binary_value<uint32_t>(is);
 
-    for(uint32_t ti = 0; ti < num_triangles; ++ti) {
+    for (uint32_t ti = 0; ti < num_triangles; ++ti) {
         Facet facet = {};
         facet.normal = read_binary_value<Normal>(is);
-        for(int vi = 0; vi < 3; ++vi) {
+        for (int vi = 0; vi < 3; ++vi) {
             facet.vertices[vi] = read_binary_value<Vertex>(is);
         }
         // This field is unused, but must be present
@@ -237,14 +237,14 @@ void parse_stream(std::istream& is, Mesh& mesh)
     // this
     size_t geom_size = file_size - STL_BINARY_HDR_SIZE - STL_BINARY_META_SIZE;
 
-    if(is_ascii &&
+    if (is_ascii &&
        geom_size > 0 &&
        geom_size % STL_BINARY_TRIANGLE_SIZE == 0) {
         //std::cout << "File looks suspiciously like a binary STL\n";
         is_ascii = false;
     }
 
-    if(is_ascii) {
+    if (is_ascii) {
         parse_ascii_stream(is, mesh);
     }
     else {
@@ -256,12 +256,12 @@ void parse_file(const char * filename, Mesh & mesh)
 {
     std::ifstream ifs;
 //    ifs.exceptions(std::ifstream::failbit | std::ifstream::badbit);
-    try {
+    // try {
         ifs.open(filename, std::ifstream::binary);
-    }
-    catch(...) {
-        throw std::runtime_error("File not found: " + std::string(filename));
-    }
+    // }
+    // catch(...) {
+    //     throw std::runtime_error("File not found: " + std::string(filename));
+    // }
     parse_stream(ifs, mesh);
     ifs.close();
 }
@@ -283,7 +283,7 @@ void Normal::print(std::ostream & os) const
 template<typename T>
 T native_to_little_endian(T v) {
     T vn = 0;
-    for(unsigned int i = 0; i < sizeof(T); ++i) {
+    for (unsigned int i = 0; i < sizeof(T); ++i) {
         ((uint8_t*)&vn)[i] = (v >> (8 * i)) & 0xFF;
     }
     return vn;
@@ -330,13 +330,13 @@ void Mesh::write_stream(std::ostream & os, Format format) const
         case Format::ascii:
             {
                 std::string solid_name = name;
-                if(solid_name.size() == 0) solid_name = header;
-                if(solid_name.size() == 0) solid_name = "stlloader";
+                if (solid_name.size() == 0) solid_name = header;
+                if (solid_name.size() == 0) solid_name = "stlloader";
                 os << "solid " << solid_name << '\n';
-                for(auto & facet : facets) {
+                for (auto & facet : facets) {
                     os << "facet " << "normal " << facet.normal << '\n';
                     os << "outer loop\n";
-                    for(int vi = 0; vi < 3; ++vi) {
+                    for (int vi = 0; vi < 3; ++vi) {
                         os << "vertex " << facet.vertices[vi] << '\n';
                     }
                     os << "endloop\n";
@@ -348,14 +348,14 @@ void Mesh::write_stream(std::ostream & os, Format format) const
         case Format::binary:
             {
                 std::string padded_header = header;
-                if(padded_header.size() == 0) padded_header = name;
-                if(padded_header.size() == 0) padded_header = "stlloader";
+                if (padded_header.size() == 0) padded_header = name;
+                if (padded_header.size() == 0) padded_header = "stlloader";
                 padded_header.resize(STL_BINARY_HDR_SIZE, '\0');
                 os << padded_header;
                 write_binary_value<uint32_t>(os, facets.size());
-                for(auto & facet : facets) {
+                for (auto & facet : facets) {
                     write_binary_value(os, facet.normal);
-                    for(int vi = 0; vi < 3; ++vi) {
+                    for (int vi = 0; vi < 3; ++vi) {
                         write_binary_value(os, facet.vertices[vi]);
                     }
                     write_binary_value(os, uint16_t(0));
@@ -382,7 +382,4 @@ Facet apply(const Transform& func, const Facet& f)
     return result;
 }
 
-
-
-} // namespace stlloader
-
+} // namespace STL
